@@ -10,4 +10,17 @@
  * ========================================
 */
 
+#include "servo_control.h"
+
+// as defined in 1.2.1
+static int angle_to_compare(float angle) {
+    // STUB
+    return 0;
+}
+
+// as defined in 1.2.2
+void set_servos(struct servo_point angles) {
+    // STUB
+}
+
 /* [] END OF FILE */

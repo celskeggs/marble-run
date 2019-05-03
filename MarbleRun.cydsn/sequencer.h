@@ -9,5 +9,12 @@
  *
  * ========================================
 */
+#ifndef SEQUENCER_H
+#define SEQUENCER_H
+
+// as defined in 5.11
+extern void initialize_sequencer(void);
+
+#endif
 
 /* [] END OF FILE */

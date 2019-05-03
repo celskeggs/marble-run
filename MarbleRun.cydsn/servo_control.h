@@ -9,5 +9,13 @@
  *
  * ========================================
 */
+#ifndef SERVO_CONTROL_H
+#define SERVO_CONTROL_H
 
+#include "coordinate_systems.h"
+
+// as defined in 1.2.2
+extern void set_servos(struct servo_point angles);
+
+#endif
 /* [] END OF FILE */
