@@ -13,6 +13,7 @@
 #define SENSOR_DRIVER_H
 
 #include <stdint.h>
+#include <FreeRTOS.h>
 #include <semphr.h>
 
 // as defined in 4.3.1

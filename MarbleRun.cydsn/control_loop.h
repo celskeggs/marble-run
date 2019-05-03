@@ -14,6 +14,7 @@
 
 #include "coordinate_systems.h"
 #include <stdbool.h>
+#include <FreeRTOS.h>
 #include <semphr.h>
 
 // as defined in 3.2.1

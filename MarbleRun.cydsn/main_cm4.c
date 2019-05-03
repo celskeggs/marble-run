@@ -10,17 +10,25 @@
  * ========================================
 */
 #include "project.h"
+#include "servo_control.h"
+#include "control_loop.h"
+#include "sensor_driver.h"
+#include "sequencer.h"
+#include <FreeRTOS.h>
+#include <task.h>
 
-int main(void)
-{
+int main(void) {
     __enable_irq(); /* Enable global interrupts. */
 
-    /* Place your initialization/startup code here (e.g. MyInst_Start()) */
+    initialize_servos();
+    initialize_control_loop();
+    initialize_sensor_poller();
+    initialize_sequencer();
 
-    for(;;)
-    {
-        /* Place your application code here. */
-    }
+    vTaskStartScheduler();
+
+    // loop forever if we can't start the task scheduler
+    for(;;) {}
 }
 
 /* [] END OF FILE */
