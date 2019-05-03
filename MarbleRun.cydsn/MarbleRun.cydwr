@@ -20,12 +20,12 @@
   <Group key="Interrupt">
     <Group key="e557195a-365e-478a-af29-e5f4965d76b2/9260d369-b684-4310-b925-f618d77b89d7">
       <Group key="CortexM0p">
-        <Data key="Assigned" value="True" />
+        <Data key="Assigned" value="False" />
         <Data key="Priority" value="Default" />
         <Data key="Vector" value="8" />
       </Group>
       <Group key="CortexM4">
-        <Data key="Assigned" value="False" />
+        <Data key="Assigned" value="True" />
         <Data key="Priority" value="Default" />
         <Data key="Vector" value="-1" />
       </Group>
