@@ -17,5 +17,8 @@
 // as defined in 1.2.2
 extern void set_servos(struct servo_point angles);
 
+// as defined in 1.2.3
+extern void initialize_servos(void);
+
 #endif
 /* [] END OF FILE */
