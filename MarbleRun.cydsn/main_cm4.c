@@ -22,7 +22,7 @@ int main(void) {
 
     initialize_servos();
     initialize_control_loop();
-    initialize_sensor_poller();
+    initialize_sensor_driver();
     initialize_sequencer();
 
     vTaskStartScheduler();

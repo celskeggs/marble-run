@@ -24,7 +24,7 @@ static void poll_sensor_state(void) {
 }
 
 // as defined in 4.5
-void initialize_sensor_poller(void) {
+void initialize_sensor_driver(void) {
     // STUB
 }
 

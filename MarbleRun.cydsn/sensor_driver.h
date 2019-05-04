@@ -27,7 +27,7 @@ extern uint64_t marble_detected_at;
 extern SemaphoreHandle_t position_mutex;
 
 // as defined in 4.5
-extern void initialize_sensor_poller(void);
+extern void initialize_sensor_driver(void);
 
 #endif
 /* [] END OF FILE */
