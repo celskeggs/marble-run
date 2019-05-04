@@ -9,10 +9,15 @@
       <Data key="e557195a-365e-478a-af29-e5f4965d76b2/9260d369-b684-4310-b925-f618d77b89d7" value="UART_1_SCB_IRQ" />
     </Group>
     <Group key="Pin">
-      <Data key="0adb3aa1-ee13-4ef9-a310-eeb5b583c9f1" value="PinArmRaiseL" />
-      <Data key="1be0159b-e82c-49af-8515-3e5712b23a29" value="PinArmGrip" />
-      <Data key="a61270bc-07ec-447d-ac9e-34cfe85c30e9" value="PinArmSpin" />
-      <Data key="bb9c01a0-d28d-40fd-af42-c0103767a881" value="PinArmRaiseR" />
+      <Data key="0adb3aa1-ee13-4ef9-a310-eeb5b583c9f1" value="LEFT_SERVO" />
+      <Data key="1be0159b-e82c-49af-8515-3e5712b23a29" value="GRIP_SERVO" />
+      <Data key="1f21a46d-aafe-4747-9e92-2864c7d6497d" value="Detect_2" />
+      <Data key="4cca878b-77b5-471d-8aeb-ad6925202455" value="Detect_1" />
+      <Data key="8c9f5058-39fb-4403-a89f-4b08ef08ac15" value="Detect_5" />
+      <Data key="a61270bc-07ec-447d-ac9e-34cfe85c30e9" value="SPIN_SERVO" />
+      <Data key="bb9c01a0-d28d-40fd-af42-c0103767a881" value="RIGHT_SERVO" />
+      <Data key="c6f18567-d699-4ae9-82cf-e3b9711d3835" value="Detect_4" />
+      <Data key="e5c61a42-dc59-4725-8960-c64738f20b9c" value="Detect_3" />
       <Data key="e557195a-365e-478a-af29-e5f4965d76b2/65f3af6c-759b-4ccb-8c66-5c95ba1f5f4f" value="UART_1_tx" />
       <Data key="e557195a-365e-478a-af29-e5f4965d76b2/b7e8018e-1ef7-49c0-b5a5-61641a03e31c" value="UART_1_rx" />
     </Group>
@@ -643,6 +648,11 @@
     <Group key="e557195a-365e-478a-af29-e5f4965d76b2/b7e8018e-1ef7-49c0-b5a5-61641a03e31c">
       <Group key="0">
         <Data key="Port Format" value="5,0" />
+      </Group>
+    </Group>
+    <Group key="UnAssigned Pins">
+      <Group key="4cca878b-77b5-471d-8aeb-ad6925202455">
+        <Data key="0" value="132014254774706000" />
       </Group>
     </Group>
   </Group>
