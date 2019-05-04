@@ -10,6 +10,7 @@
  * ========================================
 */
 #include "control_loop.h"
+#include "servo_control.h"
 #include <assert.h>
 #include <math.h>
 #include <FreeRTOS.h>
@@ -99,6 +100,7 @@ static void update_control_loop(void) {
         max_update = servo_multiply_veloctiy(maximum_speed, CONTROL_LOOP_UPDATE_PERIOD_MS / 1000.0f);
 
         driven_position = servo_update_clamped(driven_position, target_position, max_update);
+        set_servos(driven_position);
 
         if (servo_point_equal(driven_position, target_position)) {
             at_target_position = true;
@@ -128,6 +130,8 @@ void initialize_control_loop(void) {
 
     position_mutex = xSemaphoreCreateMutex();
     assert(position_mutex != NULL);
+
+    set_servos(driven_position);
 
     err = xTaskCreate(run_control_loop, "control_loop", 400, NULL, 3, NULL);
     // TODO: consider other error handling techniques besides 'assert'
