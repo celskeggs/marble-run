@@ -27,18 +27,18 @@ static int angle_to_compare(float angle) {
 
 // as defined in 1.2.2
 void set_servos(struct servo_point angles) {
-    PWMArmSpin_SetCompare0(angle_to_compare(angles.arm_spin));
-    PWMArmRaiseL_SetCompare0(angle_to_compare(angles.arm_left));
-    PWMArmRaiseR_SetCompare0(angle_to_compare(angles.arm_right));
-    PWMArmGrip_SetCompare0(angle_to_compare(angles.arm_grip));
+    PWM_spin_SetCompare0(angle_to_compare(angles.arm_spin));
+    PWM_left_SetCompare0(angle_to_compare(angles.arm_left));
+    PWM_right_SetCompare0(angle_to_compare(angles.arm_right));
+    PWM_grip_SetCompare0(angle_to_compare(angles.arm_grip));
 }
 
 // as defined in 1.2.3
 void initialize_servos(void) {
-    PWMArmSpin_Start();
-    PWMArmRaiseR_Start();
-    PWMArmRaiseL_Start();
-    PWMArmGrip_Start();
+    PWM_spin_Start();
+    PWM_right_Start();
+    PWM_left_Start();
+    PWM_grip_Start();
 }
 
 /* [] END OF FILE */
