@@ -57,7 +57,7 @@ static struct servo_velocity maximum_speed = {
     // TODO: calibrate
 };
 
-#define CONTROL_LOOP_UPDATE_PERIOD_MS (20)
+#define CONTROL_LOOP_UPDATE_PERIOD_MS 20
 
 static float float_update_clamped(float current, float target, float max_update) {
     assert(max_update > 0);

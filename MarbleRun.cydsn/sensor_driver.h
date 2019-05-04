@@ -21,10 +21,10 @@ extern int marble_column;
 // TODO: condition variable
 
 // as defined in 4.3.2
-extern uint64_t marble_detected_at;
+extern TickType_t marble_detected_at;
 
 // as defined in 4.3.1.2
-extern SemaphoreHandle_t position_mutex;
+extern SemaphoreHandle_t marble_column_mutex;
 
 // as defined in 4.5
 extern void initialize_sensor_driver(void);
