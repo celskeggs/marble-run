@@ -14,16 +14,19 @@
 #include "control_loop.h"
 #include "sensor_driver.h"
 #include "sequencer.h"
+#include "debug.h"
 #include <FreeRTOS.h>
 #include <task.h>
 
 int main(void) {
     __enable_irq(); /* Enable global interrupts. */
 
+    initialize_debugger();
     initialize_servos();
     initialize_control_loop();
     initialize_sensor_driver();
     initialize_sequencer();
+    start_debugger();
 
     vTaskStartScheduler();
 

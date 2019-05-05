@@ -12,6 +12,9 @@
 
 #include "project.h"
 #include "servo_control.h"
+#include "debug.h"
+
+static struct servo_point last_written = {0, 0, 0, 0};
 
 // as defined in 1.2.1
 static int angle_to_compare(float angle) {
@@ -27,6 +30,8 @@ static int angle_to_compare(float angle) {
 
 // as defined in 1.2.2
 void set_servos(struct servo_point angles) {
+    last_written = angles;
+
     PWM_spin_SetCompare0(angle_to_compare(angles.arm_spin));
     PWM_left_SetCompare0(angle_to_compare(angles.arm_left));
     PWM_right_SetCompare0(angle_to_compare(angles.arm_right));
@@ -39,6 +44,10 @@ void initialize_servos(void) {
     PWM_right_Start();
     PWM_left_Start();
     PWM_grip_Start();
+
+    debug_text("servo_control(");
+    debug_servo_point(&last_written);
+    debug_text(") ");
 }
 
 /* [] END OF FILE */

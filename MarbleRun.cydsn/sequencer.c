@@ -10,6 +10,7 @@
  * ========================================
 */
 #include "path_planning.h"
+#include "debug.h"
 
 // as defined in 5.2.1
 static struct graph_node; // TODO: initialize
@@ -57,6 +58,8 @@ static void path_plan(struct graph_node *goal_position) {
 
 // as defined in 5.11
 void initialize_sequencer(void) {
+    debug_text("sequencer(no debugging info)");
+    uart_send("sequencer NOTIMPLEMENTED\r\n");
     // STUB
 }
 
