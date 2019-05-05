@@ -13,13 +13,17 @@ This is the Final Project for 16.35, Real-Time Systems and Software, from Mia La
 ## Pinout
 
 Servo pinout:
- - Spin servo: pin P5[2]
- - Right servo: pin P5[3]
- - Left servo: pin P5[4]
- - Grip servo: pin P5[5]
+ - Grip servo: pin P5[2]
+ - Spin servo: pin P5[3]
+ - Left servo: pin P12[2]
+ - Right servo: pin P12[3]
 
 Photodiode pinout:
- - TBD
+ - Detector 1: P5[4]
+ - Detector 2: P5[5]
+ - Detector 3: P5[6]
+ - Detector 4: P13[0]
+ - Detector 5: P13[1]
 
 ## Building the code
 

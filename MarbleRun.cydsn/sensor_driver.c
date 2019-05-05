@@ -32,15 +32,15 @@ static bool err_mutex_mishandle = false;
 #define SENSOR_LOOP_UPDATE_PERIOD_MS 5
 
 static unsigned int poll_first_sensor(void) {
-    if (Cy_GPIO_Read(Detect_1_PORT, Detect_1_NUM)) {
+    if (Cy_GPIO_Read(Detect_0_PORT, Detect_0_NUM)) {
         return 1;
-    } else if (Cy_GPIO_Read(Detect_2_PORT, Detect_2_NUM)) {
+    } else if (Cy_GPIO_Read(Detect_1_PORT, Detect_1_NUM)) {
         return 2;
-    } else if (Cy_GPIO_Read(Detect_3_PORT, Detect_3_NUM)) {
+    } else if (Cy_GPIO_Read(Detect_2_PORT, Detect_2_NUM)) {
         return 3;
-    } else if (Cy_GPIO_Read(Detect_4_PORT, Detect_4_NUM)) {
+    } else if (Cy_GPIO_Read(Detect_3_PORT, Detect_3_NUM)) {
         return 4;
-    } else if (Cy_GPIO_Read(Detect_5_PORT, Detect_5_NUM)) {
+    } else if (Cy_GPIO_Read(Detect_4_PORT, Detect_4_NUM)) {
         return 5;
     } else {
         return 0;
