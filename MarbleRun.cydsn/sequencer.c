@@ -10,54 +10,113 @@
  * ========================================
 */
 #include "path_planning.h"
+#include "control_loop.h"
+#include "sensor_driver.h"
+#include <assert.h>
+#include <FreeRTOS.h>
+#include <task.h>
 
 // as defined in 5.2.1
-static struct graph_node; // TODO: initialize
+//static struct graph_node; // TODO: initialize
 
 // as defined in 5.4.1
-static float drop_interval; // TODO: configure
+static float drop_interval = 0.25; // TODO: configure
 
 // as defined in 5.4.2
-static float pickup_end; // TODO: configure
+static float pickup_end = 2.0; // TODO: configure
 
-// as defined in 5.3
-static void run_path_loop(void) {
-    // STUB
+//for pickup to return both the column and the time
+typedef struct t_sensor_out{
+    int col;
+    TickType_t col_at;
+} sensor_out;
+
+const TickType_t drop_delay;
+const TickType_t pickup_delay;
+
+// as defined in 5.10
+static void path_plan(int start_pos, int end_pos, int pickup_index) {
+  //selecting the direction to go
+  int sign = -1;
+  if(start_pos < end_pos){
+    sign = 1;
+  }
+  int current = start_pos;
+  //looping until the target position is the same as the goal
+  while(current != end_pos){
+    current += sign;
+    if(current != 3){
+      target_position = *graph[current];
+    }else{
+      target_position = graph[3][pickup_index];
+    }
+    BaseType_t ret;
+    ret = xSemaphoreTake(position_mutex, portMAX_DELAY);
+    assert(ret == pdTRUE);
+    //TODO: how to wait?
+    ret = xSemaphoreGive(position_mutex);
+    assert(ret == pdTRUE);
+  }
 }
 
 // as defined in 5.5
 static void pickup_standby(void) {
-    // STUB
+    path_plan(0, 2, 0);
 }
 
 // as defined in 5.6
-static void wait_for_marble(void) {
-    // STUB
+static sensor_out wait_for_marble(void) {
+   BaseType_t ret;
+   ret = xSemaphoreTake(marble_column_mutex, portMAX_DELAY);
+   assert(ret == pdTRUE);
+   sensor_out so = {marble_column, marble_detected_at};
+   ret = xSemaphoreGive(marble_column_mutex);
+   assert(ret == pdTRUE);
+   return so;
 }
 
 // as defined in 5.7
-static void pickup_marble(int col, float col_at) {
-    // STUB
+static void pickup_marble(int col, TickType_t col_at) {
+    path_plan(2, 3, col);
+    vTaskDelayUntil(&col_at, pickup_delay);
+    
 }
 
 // as defined in 5.8
 static void to_drop(void) {
-    // STUB
+    path_plan(3, 0, 0);
 }
 
 // as defined in 5.9
 static void drop_marble(void) {
-    // STUB
+    target_position.arm_grip = 45; //TODO: set actual values
+    vTaskDelay(drop_delay);
+    target_position.arm_grip = 0; //TODO: set actual values
 }
 
-// as defined in 5.10
-static void path_plan(struct graph_node *goal_position) {
-    // STUB
+
+
+// as defined in 5.3
+static void run_path_loop(void * unused) {
+    (void) unused;
+    for(;;){
+        pickup_standby();
+        sensor_out so = wait_for_marble();
+        pickup_marble(so.col, so.col_at);
+        to_drop();
+        drop_marble();
+    }
 }
+
 
 // as defined in 5.11
 void initialize_sequencer(void) {
-    // STUB
+    const TickType_t drop_delay = drop_interval * 1000 / portTICK_PERIOD_MS;
+    const TickType_t pickup_delay = pickup_end * 1000 / portTICK_PERIOD_MS;
+    BaseType_t err;
+    err = xTaskCreate(run_path_loop, "sequencer", 400, NULL, 2, NULL);
+    // TODO: consider other error handling techniques besides 'assert'
+    assert(err == pdPASS);
 }
 
 /* [] END OF FILE */

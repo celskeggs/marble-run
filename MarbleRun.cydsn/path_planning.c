@@ -12,9 +12,12 @@
 
 #include "path_planning.h"
 
+
 // as defined in 7.2
 // TODO: initialize
 struct graph_node drop_off, drop_off_waypoint, pick_up_waypoint;
-struct graph_node pick_ups[];
+struct servo_point * pick_ups;
+struct servo_point ** graph;
+
 
 /* [] END OF FILE */
