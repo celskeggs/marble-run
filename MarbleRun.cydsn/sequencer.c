@@ -15,6 +15,7 @@
 #include <assert.h>
 #include <FreeRTOS.h>
 #include <task.h>
+#include "debug.h"
 
 // as defined in 5.2.1
 //static struct graph_node; // TODO: initialize
@@ -114,9 +115,13 @@ void initialize_sequencer(void) {
     const TickType_t drop_delay = drop_interval * 1000 / portTICK_PERIOD_MS;
     const TickType_t pickup_delay = pickup_end * 1000 / portTICK_PERIOD_MS;
     BaseType_t err;
-    err = xTaskCreate(run_path_loop, "sequencer", 400, NULL, 2, NULL);
+    if(xTaskCreate(run_path_loop, "sequencer", 400, NULL, 2, NULL) != pdPASS){
     // TODO: consider other error handling techniques besides 'assert'
-    assert(err == pdPASS);
+    
+        debug_text("sequencer task create failed");
+        uart_send("sequencer task create failed \r\n");
+    // STUB
+    }
 }
 
 /* [] END OF FILE */

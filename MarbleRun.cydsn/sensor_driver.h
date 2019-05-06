@@ -17,7 +17,7 @@
 #include <semphr.h>
 
 // as defined in 4.3.1
-extern int marble_column;
+extern unsigned int marble_column;
 // TODO: condition variable
 
 // as defined in 4.3.2

@@ -10,6 +10,8 @@
  * ========================================
 */
 #include "control_loop.h"
+#include "servo_control.h"
+#include "debug.h"
 #include <assert.h>
 #include <math.h>
 #include <FreeRTOS.h>
@@ -57,6 +59,9 @@ static struct servo_velocity maximum_speed = {
     // TODO: calibrate
 };
 
+// debugging
+static bool err_mutex_mishandle = false;
+
 #define CONTROL_LOOP_UPDATE_PERIOD_MS 20
 
 static float float_update_clamped(float current, float target, float max_update) {
@@ -85,9 +90,10 @@ static struct servo_point servo_update_clamped(struct servo_point current, struc
 
 // as defined in 3.4
 static void update_control_loop(void) {
-    BaseType_t ret;
-    ret = xSemaphoreTake(position_mutex, portMAX_DELAY);
-    assert(ret == pdTRUE);
+    if (xSemaphoreTake(position_mutex, portMAX_DELAY) != pdTRUE) {
+        err_mutex_mishandle = true;
+        return;
+    }
 
     // per 3.4.3
     inferred_position = driven_position;
@@ -99,6 +105,7 @@ static void update_control_loop(void) {
         max_update = servo_multiply_veloctiy(maximum_speed, CONTROL_LOOP_UPDATE_PERIOD_MS / 1000.0f);
 
         driven_position = servo_update_clamped(driven_position, target_position, max_update);
+        set_servos(driven_position);
 
         if (servo_point_equal(driven_position, target_position)) {
             at_target_position = true;
@@ -106,8 +113,9 @@ static void update_control_loop(void) {
         }
     }
 
-    ret = xSemaphoreGive(position_mutex);
-    assert(ret == pdTRUE);
+    if (xSemaphoreGive(position_mutex) != pdTRUE) {
+        err_mutex_mishandle = true;
+    }
 }
 
 static void run_control_loop(void *unused) {
@@ -124,14 +132,36 @@ static void run_control_loop(void *unused) {
 
 // as defined in 3.5
 void initialize_control_loop(void) {
-    BaseType_t err;
-
     position_mutex = xSemaphoreCreateMutex();
-    assert(position_mutex != NULL);
+    if (position_mutex != NULL) {
+        uart_send("control loop NMUTEX\r\n");
+        return;
+    }
 
-    err = xTaskCreate(run_control_loop, "control_loop", 400, NULL, 3, NULL);
-    // TODO: consider other error handling techniques besides 'assert'
-    assert(err == pdPASS);
+    debug_text("control_loop(PM=");
+    debug_mutex_state(&position_mutex);
+    debug_text(" ERRMX=");
+    debug_boolean(&err_mutex_mishandle);
+    debug_text(" MAXV=");
+    debug_servo_velocity(&maximum_speed);
+    debug_text(" ");
+    void *token = debug_with_mutex(position_mutex);
+    debug_text(" DPOS=");
+    debug_servo_point(&driven_position);
+    debug_text(" IPOS=");
+    debug_servo_point(&inferred_position);
+    debug_text(" TPOS=");
+    debug_servo_point(&target_position);
+    debug_text(" ATP=");
+    debug_boolean(&at_target_position);
+    debug_end_mutex(token);
+    debug_text(") ");
+
+    set_servos(driven_position);
+
+    if (xTaskCreate(run_control_loop, "control_loop", 400, NULL, 3, NULL) != pdPASS) {
+        uart_send("control loop NTASK\r\n");
+    }
 }
 
 /* [] END OF FILE */
