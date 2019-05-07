@@ -18,13 +18,15 @@
 
 // as defined in 4.3.1
 unsigned int marble_column = 0;
-// TODO: condition variable
 
 // as defined in 4.3.2
 TickType_t marble_detected_at = 0;
 
 // as defined in 4.3.1.2
 SemaphoreHandle_t marble_column_mutex = NULL;
+
+// as defined in 4.3.1.3
+SemaphoreHandle_t marble_column_notify = NULL;
 
 // debugging
 static bool err_mutex_mishandle = false;
@@ -64,6 +66,8 @@ static void poll_sensor_state(void) {
     if (marble_column != sensor_active) {
         marble_column = sensor_active;
         marble_detected_at = detected;
+        // we don't care if this fails, because that just means the last notification is still pending
+        (void) xSemaphoreGive(marble_column_notify);
     }
 
     if (xSemaphoreGive(marble_column_mutex) != pdTRUE) {
@@ -91,6 +95,12 @@ void initialize_sensor_driver(void) {
         return;
     }
 
+    marble_column_notify = xSemaphoreCreateBinary();
+    if (marble_column_notify != NULL) {
+        uart_send("sensor driver NSEMAPHORE\r\n");
+        return;
+    }
+
     debug_text("sensor_driver(MCM=");
     debug_mutex_state(&marble_column_mutex);
     debug_text(" ERRMX=");
@@ -101,6 +111,8 @@ void initialize_sensor_driver(void) {
     debug_integer(&marble_column, 1);
     debug_text(" MDA=");
     debug_ticktype(&marble_detected_at);
+    debug_text(" MCN=");
+    debug_semaphore_state(&marble_column_notify);
     debug_end_mutex(token);
     debug_text(") ");
 

@@ -54,7 +54,16 @@ static void path_plan(int start_pos, int end_pos, int pickup_index) {
         BaseType_t ret;
         ret = xSemaphoreTake(position_mutex, portMAX_DELAY);
         assert(ret == pdTRUE);
-        //TODO: how to wait?
+        while (!at_target_position) {
+            ret = xSemaphoreGive(position_mutex);
+            assert(ret == pdTRUE);
+
+            ret = xSemaphoreTake(marble_column_notify, portMAX_DELAY);
+            assert(ret == pdTRUE);
+
+            ret = xSemaphoreTake(position_mutex, portMAX_DELAY);
+            assert(ret == pdTRUE);
+        }
         ret = xSemaphoreGive(position_mutex);
         assert(ret == pdTRUE);
     }
@@ -70,6 +79,7 @@ static sensor_out wait_for_marble(void) {
     BaseType_t ret;
     ret = xSemaphoreTake(marble_column_mutex, portMAX_DELAY);
     assert(ret == pdTRUE);
+    // TODO: wait for notification
     sensor_out so = {marble_column, marble_detected_at};
     ret = xSemaphoreGive(marble_column_mutex);
     assert(ret == pdTRUE);

@@ -28,7 +28,9 @@ extern struct servo_point inferred_position;
 
 // as defined in 3.2.3
 extern bool at_target_position;
-// TODO: condition variable
+
+// as defined in 3.2.3.4
+extern SemaphoreHandle_t at_target_position_notify;
 
 // as defined in 3.5
 extern void initialize_control_loop(void);

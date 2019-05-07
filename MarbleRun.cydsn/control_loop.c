@@ -39,7 +39,8 @@ struct servo_point inferred_position = {
 // as defined in 3.2.3
 bool at_target_position = false;
 
-// TODO: condition variable
+// as defined in 3.2.3.4
+SemaphoreHandle_t at_target_position_notify = NULL;
 
 // as defined in 3.2.4
 static struct servo_point driven_position = {
@@ -109,7 +110,8 @@ static void update_control_loop(void) {
 
         if (servo_point_equal(driven_position, target_position)) {
             at_target_position = true;
-            // TODO: broadcast condition variable
+            // we don't care if this fails, because that just means the last notification is still pending
+            (void) xSemaphoreGive(at_target_position_notify);
         }
     }
 
@@ -138,6 +140,12 @@ void initialize_control_loop(void) {
         return;
     }
 
+    at_target_position_notify = xSemaphoreCreateBinary();
+    if (at_target_position_notify != NULL) {
+        uart_send("control loop NSEMAPHORE\r\n");
+        return;
+    }
+
     debug_text("control_loop(PM=");
     debug_mutex_state(&position_mutex);
     debug_text(" ERRMX=");
@@ -154,6 +162,8 @@ void initialize_control_loop(void) {
     debug_servo_point(&target_position);
     debug_text(" ATP=");
     debug_boolean(&at_target_position);
+    debug_text(" ATPN=");
+    debug_semaphore_state(&at_target_position_notify);
     debug_end_mutex(token);
     debug_text(") ");
 

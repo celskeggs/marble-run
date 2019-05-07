@@ -40,6 +40,7 @@ extern void debug_float(float *variable, int digits);
 extern void debug_servo_point(struct servo_point *variable);
 extern void debug_servo_velocity(struct servo_velocity *variable);
 extern void debug_mutex_state(SemaphoreHandle_t *variable);
+extern void debug_semaphore_state(SemaphoreHandle_t *variable);
 
 #define debug_start(name) debug_text(name "=")
 #define debug_end() debug_text(" ")
@@ -60,6 +61,7 @@ extern void debug_mutex_state(SemaphoreHandle_t *variable);
 #define debug_servo_point(variable) do {} while(0)
 #define debug_servo_velocity(variable) do {} while(0)
 #define debug_mutex_state(variable) do {} while(0)
+#define debug_semaphore_state(variable) do {} while(0)
 #endif
 
 #endif

@@ -322,6 +322,22 @@ void debug_mutex_state(SemaphoreHandle_t *variable) {
     add_debug_fn(fn_mutex_state, variable, 8);
 }
 
+// -- semaphore variables --
+
+static void fn_semaphore_state(char *output, size_t len, void *param) {
+    SemaphoreHandle_t handle = *(SemaphoreHandle_t *) param;
+    if (handle == NULL) {
+        string_padded(output, len, "NULL");
+    } else {
+        unsigned int count = uxSemaphoreGetCount(handle);
+        fn_integer(output, len, &count);
+    }
+}
+
+void debug_semaphore_state(SemaphoreHandle_t *variable) {
+    add_debug_fn(fn_semaphore_state, variable, 4);
+}
+
 #endif
 
 /* [] END OF FILE */
