@@ -135,13 +135,13 @@ static void run_control_loop(void *unused) {
 // as defined in 3.5
 void initialize_control_loop(void) {
     position_mutex = xSemaphoreCreateMutex();
-    if (position_mutex != NULL) {
+    if (position_mutex == NULL) {
         uart_send("control loop NMUTEX\r\n");
         return;
     }
 
     at_target_position_notify = xSemaphoreCreateBinary();
-    if (at_target_position_notify != NULL) {
+    if (at_target_position_notify == NULL) {
         uart_send("control loop NSEMAPHORE\r\n");
         return;
     }

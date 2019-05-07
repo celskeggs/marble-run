@@ -19,8 +19,6 @@
 #include <task.h>
 
 int main(void) {
-    __enable_irq(); /* Enable global interrupts. */
-
     initialize_debugger();
     initialize_servos();
     initialize_control_loop();
@@ -28,6 +26,7 @@ int main(void) {
     initialize_sequencer();
     start_debugger();
 
+    uart_send("starting scheduler\r\n");
     vTaskStartScheduler();
 
     // loop forever if we can't start the task scheduler

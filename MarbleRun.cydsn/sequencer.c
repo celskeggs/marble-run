@@ -120,7 +120,7 @@ static void run_path_loop(void * unused) {
 void initialize_sequencer(void) {
     const TickType_t drop_delay = drop_interval * 1000 / portTICK_PERIOD_MS;
     const TickType_t pickup_delay = pickup_end * 1000 / portTICK_PERIOD_MS;
-    BaseType_t err;
+
     if (xTaskCreate(run_path_loop, "sequencer", 400, NULL, 2, NULL) != pdPASS) {
         uart_send("sequencer NTASK\r\n");
     }

@@ -50,7 +50,19 @@ static void add_debug_fn(void (*fn)(char *, size_t, void *), void *param, size_t
 }
 
 void uart_send(const char *string) {
-    UART_1_Transmit((void *) string, strlen(string));
+    cy_en_scb_uart_status_t err;
+    size_t len = strlen(string);
+    int irqs_disabled = __get_PRIMASK();
+    if (irqs_disabled) {
+        // TODO: something more reliable?
+        __enable_irq();
+    }
+    do {
+        err = UART_1_Transmit((void *) string, len);
+    } while (err == CY_SCB_UART_TRANSMIT_BUSY);
+    if (irqs_disabled) {
+        __disable_irq();
+    }
 }
 
 static void initialize_uart(void) {

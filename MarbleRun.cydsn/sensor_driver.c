@@ -90,13 +90,13 @@ static void run_sensor_loop(void *unused) {
 // as defined in 4.5
 void initialize_sensor_driver(void) {
     marble_column_mutex = xSemaphoreCreateMutex();
-    if (marble_column_mutex != NULL) {
+    if (marble_column_mutex == NULL) {
         uart_send("sensor driver NMUTEX\r\n");
         return;
     }
 
     marble_column_notify = xSemaphoreCreateBinary();
-    if (marble_column_notify != NULL) {
+    if (marble_column_notify == NULL) {
         uart_send("sensor driver NSEMAPHORE\r\n");
         return;
     }
