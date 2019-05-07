@@ -27,7 +27,7 @@ static float drop_interval = 0.25; // TODO: configure
 static float pickup_end = 2.0; // TODO: configure
 
 //for pickup to return both the column and the time
-typedef struct t_sensor_out{
+typedef struct {
     int col;
     TickType_t col_at;
 } sensor_out;
@@ -37,27 +37,27 @@ const TickType_t pickup_delay;
 
 // as defined in 5.10
 static void path_plan(int start_pos, int end_pos, int pickup_index) {
-  //selecting the direction to go
-  int sign = -1;
-  if(start_pos < end_pos){
-    sign = 1;
-  }
-  int current = start_pos;
-  //looping until the target position is the same as the goal
-  while(current != end_pos){
-    current += sign;
-    if(current != 3){
-      target_position = *graph[current];
-    }else{
-      target_position = graph[3][pickup_index];
+    //selecting the direction to go
+    int sign = -1;
+    if(start_pos < end_pos){
+        sign = 1;
     }
-    BaseType_t ret;
-    ret = xSemaphoreTake(position_mutex, portMAX_DELAY);
-    assert(ret == pdTRUE);
-    //TODO: how to wait?
-    ret = xSemaphoreGive(position_mutex);
-    assert(ret == pdTRUE);
-  }
+    int current = start_pos;
+    //looping until the target position is the same as the goal
+    while(current != end_pos){
+        current += sign;
+        if(current != 3){
+            target_position = *graph[current];
+        }else{
+            target_position = graph[3][pickup_index];
+        }
+        BaseType_t ret;
+        ret = xSemaphoreTake(position_mutex, portMAX_DELAY);
+        assert(ret == pdTRUE);
+        //TODO: how to wait?
+        ret = xSemaphoreGive(position_mutex);
+        assert(ret == pdTRUE);
+    }
 }
 
 // as defined in 5.5
@@ -67,20 +67,19 @@ static void pickup_standby(void) {
 
 // as defined in 5.6
 static sensor_out wait_for_marble(void) {
-   BaseType_t ret;
-   ret = xSemaphoreTake(marble_column_mutex, portMAX_DELAY);
-   assert(ret == pdTRUE);
-   sensor_out so = {marble_column, marble_detected_at};
-   ret = xSemaphoreGive(marble_column_mutex);
-   assert(ret == pdTRUE);
-   return so;
+    BaseType_t ret;
+    ret = xSemaphoreTake(marble_column_mutex, portMAX_DELAY);
+    assert(ret == pdTRUE);
+    sensor_out so = {marble_column, marble_detected_at};
+    ret = xSemaphoreGive(marble_column_mutex);
+    assert(ret == pdTRUE);
+    return so;
 }
 
 // as defined in 5.7
 static void pickup_marble(int col, TickType_t col_at) {
     path_plan(2, 3, col);
     vTaskDelayUntil(&col_at, pickup_delay);
-    
 }
 
 // as defined in 5.8
@@ -95,8 +94,6 @@ static void drop_marble(void) {
     target_position.arm_grip = 0; //TODO: set actual values
 }
 
-
-
 // as defined in 5.3
 static void run_path_loop(void * unused) {
     (void) unused;
@@ -109,19 +106,15 @@ static void run_path_loop(void * unused) {
     }
 }
 
-
 // as defined in 5.11
 void initialize_sequencer(void) {
     const TickType_t drop_delay = drop_interval * 1000 / portTICK_PERIOD_MS;
     const TickType_t pickup_delay = pickup_end * 1000 / portTICK_PERIOD_MS;
     BaseType_t err;
-    if(xTaskCreate(run_path_loop, "sequencer", 400, NULL, 2, NULL) != pdPASS){
-    // TODO: consider other error handling techniques besides 'assert'
-    
-        debug_text("sequencer task create failed");
-        uart_send("sequencer task create failed \r\n");
-    // STUB
+    if (xTaskCreate(run_path_loop, "sequencer", 400, NULL, 2, NULL) != pdPASS) {
+        uart_send("sequencer NTASK\r\n");
     }
+    debug_text("sequencer(no debugging info)");
 }
 
 /* [] END OF FILE */
