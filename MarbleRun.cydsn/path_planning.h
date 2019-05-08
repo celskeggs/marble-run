@@ -23,8 +23,8 @@ struct graph_node {
 };
 
 // as defined in 7.2
-extern struct servo_point ** graph;
-extern struct servo_point * pick_ups;
+extern struct servo_point *graph[];
+extern struct servo_point *pick_ups;
 
 #endif
 /* [] END OF FILE */

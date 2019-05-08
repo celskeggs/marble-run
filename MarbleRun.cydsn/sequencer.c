@@ -45,20 +45,23 @@ static void path_plan(int start_pos, int end_pos, int pickup_index) {
     int current = start_pos;
     //looping until the target position is the same as the goal
     while(current != end_pos){
-        current += sign;
-        if(current != 3){
-            target_position = *graph[current];
-        }else{
-            target_position = graph[3][pickup_index];
-        }
         BaseType_t ret;
+        current += sign;
         ret = xSemaphoreTake(position_mutex, portMAX_DELAY);
         assert(ret == pdTRUE);
+        if(current != 3){
+            target_position = *graph[current];
+        } else {
+            target_position = graph[3][pickup_index];
+        }
+        if (!servo_point_equal(target_position, inferred_position)) {
+            at_target_position = false;
+        }
         while (!at_target_position) {
             ret = xSemaphoreGive(position_mutex);
             assert(ret == pdTRUE);
 
-            ret = xSemaphoreTake(marble_column_notify, portMAX_DELAY);
+            ret = xSemaphoreTake(at_target_position_notify, portMAX_DELAY);
             assert(ret == pdTRUE);
 
             ret = xSemaphoreTake(position_mutex, portMAX_DELAY);
@@ -79,7 +82,16 @@ static sensor_out wait_for_marble(void) {
     BaseType_t ret;
     ret = xSemaphoreTake(marble_column_mutex, portMAX_DELAY);
     assert(ret == pdTRUE);
-    // TODO: wait for notification
+    while (marble_column == 0) {
+        ret = xSemaphoreGive(marble_column_mutex);
+        assert(ret == pdTRUE);
+
+        ret = xSemaphoreTake(marble_column_notify, portMAX_DELAY);
+        assert(ret == pdTRUE);
+
+        ret = xSemaphoreTake(marble_column_mutex, portMAX_DELAY);
+        assert(ret == pdTRUE);
+    }
     sensor_out so = {marble_column, marble_detected_at};
     ret = xSemaphoreGive(marble_column_mutex);
     assert(ret == pdTRUE);
@@ -107,6 +119,7 @@ static void drop_marble(void) {
 // as defined in 5.3
 static void run_path_loop(void * unused) {
     (void) unused;
+    uart_send("sequencer start\r\n");
     for(;;){
         pickup_standby();
         sensor_out so = wait_for_marble();

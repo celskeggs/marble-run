@@ -20,6 +20,7 @@
 
 int main(void) {
     initialize_debugger();
+
     initialize_servos();
     initialize_control_loop();
     initialize_sensor_driver();

@@ -123,6 +123,8 @@ static void update_control_loop(void) {
 static void run_control_loop(void *unused) {
     (void) unused;
 
+    uart_send("control loop start\r\n");
+
     const TickType_t frequency = CONTROL_LOOP_UPDATE_PERIOD_MS / portTICK_PERIOD_MS;
     TickType_t last_wake_time = xTaskGetTickCount();
 

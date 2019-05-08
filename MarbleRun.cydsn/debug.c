@@ -52,17 +52,29 @@ static void add_debug_fn(void (*fn)(char *, size_t, void *), void *param, size_t
 void uart_send(const char *string) {
     cy_en_scb_uart_status_t err;
     size_t len = strlen(string);
+
+    err = UART_1_Transmit((void *) string, len);
+    if (err != CY_SCB_UART_TRANSMIT_BUSY) {
+        return;
+    }
+    
     int irqs_disabled = __get_PRIMASK();
     if (irqs_disabled) {
         // TODO: something more reliable?
         __enable_irq();
     }
-    do {
+    while (err == CY_SCB_UART_TRANSMIT_BUSY) {
         err = UART_1_Transmit((void *) string, len);
-    } while (err == CY_SCB_UART_TRANSMIT_BUSY);
+    }
     if (irqs_disabled) {
         __disable_irq();
     }
+}
+
+void Cy_SysLib_ProcessingFault(void) {
+    // TODO: use cy_faultFrame
+    uart_send("fault detected\r\n");
+    for (;;) { }
 }
 
 static void initialize_uart(void) {
@@ -79,11 +91,11 @@ void initialize_debugger(void) {
     assert(!started);
 
     initialize_uart();
-    uart_send("debug init\r\n");
+    uart_send("\r\n\r\ndebug init\r\n");
 
     debug_text("DEBUG at ");
     debug_ticktype(&debug_timestamp);
-    debug_text(":");
+    debug_text(": ");
 
     assert(!err_insufficient_memory);
 }
@@ -106,6 +118,8 @@ static void run_debug_loop(void *bufv) {
     char *buffer = (char *) bufv;
     size_t total_size = debug_buffer_size;
 
+    uart_send("debug loop start\r\n");
+
     const TickType_t frequency = DEBUG_LOOP_UPDATE_PERIOD_MS / portTICK_PERIOD_MS;
     TickType_t last_wake_time = xTaskGetTickCount();
 
@@ -114,6 +128,8 @@ static void run_debug_loop(void *bufv) {
         
         size_t remaining = total_size;
         memset(buffer, '*', total_size);
+
+        debug_timestamp = xTaskGetTickCount();
 
         struct debug_entry *entry = debug_list;
         char *cursor = buffer;
@@ -144,7 +160,7 @@ void start_debugger(void) {
     }
 
     BaseType_t err;
-    err = xTaskCreate(run_debug_loop, "debug_loop", 500, debug_buffer, 1, NULL);
+    err = xTaskCreate(run_debug_loop, "debug_loop", 500, debug_buffer, 7, NULL);
     if (err != pdPASS) {
         uart_send("debug NTASK\r\n");
     }
@@ -234,13 +250,19 @@ void debug_boolean(bool *variable) {
 
 // -- integer variables --
 
+static int write_uint(char *output, size_t len, unsigned int value) {
+    int actual = snprintf(output, len + 1, "%u", value);
+    assert(actual >= 0);
+    return len - actual;
+}
+
 static void fn_integer(char *output, size_t len, void *param) {
     unsigned int value = *(unsigned int *) param;
-    int actual = snprintf(output, len + 1, "%u", value);
-    if ((unsigned int) actual > len) {
+    int remain = write_uint(output, len, value);
+    if (remain < 0) {
         memset(output, 'N', len);
-    } else if ((unsigned int) actual < len) {
-        memset(output + actual, ' ', len - actual);
+    } else if (remain > 0) {
+        memset(output + len - remain, ' ', remain);
     }
 }
 
@@ -251,13 +273,40 @@ void debug_integer(unsigned int *variable, int digits) {
 
 // -- float variables --
 
+static int write_float(char *output, size_t len, float value) {
+    if (value < 0) {
+        value = -value;
+        if (len == 0) {
+            return -1;
+        }
+        *output = '-';
+        len--;
+    }
+    unsigned int ival = (unsigned int) value;
+    int remain = write_uint(output, len, ival);
+    if (remain <= 1) {
+        return remain;
+    }
+    output += len - remain;
+    len = remain - 1;
+    *output++ = '.';
+    float frac = value - ival;
+    while (len > 0) {
+        assert(frac >= 0 && frac < 1);
+        frac *= 10;
+        int digit = (unsigned int) frac;
+        *output++ = '0' + digit;
+        len--;
+        frac -= digit;
+    }
+    return 0;
+}
+
 static void fn_float(char *output, size_t len, void *param) {
     float value = *(float *) param;
-    int actual = snprintf(output, len + 1, "%f", value);
-    if ((unsigned int) actual > len) {
+    int remain = write_float(output, len, value);
+    if (remain < 0) {
         memset(output, 'N', len);
-    } else if ((unsigned int) actual < len) {
-        memset(output + actual, ' ', len - actual);
     }
 }
 
@@ -276,15 +325,17 @@ void debug_ticktype(TickType_t *variable) {
 
 // -- servo_point variables --
 
+#define SERVO_FLOAT_DIGITS 6
+
 void debug_servo_point(struct servo_point *variable) {
     debug_text("(S ");
-    debug_float(&variable->arm_spin, 5);
+    debug_float(&variable->arm_spin, SERVO_FLOAT_DIGITS);
     debug_text(" G");
-    debug_float(&variable->arm_grip, 5);
+    debug_float(&variable->arm_grip, SERVO_FLOAT_DIGITS);
     debug_text(" L");
-    debug_float(&variable->arm_grip, 5);
+    debug_float(&variable->arm_grip, SERVO_FLOAT_DIGITS);
     debug_text(" R");
-    debug_float(&variable->arm_grip, 5);
+    debug_float(&variable->arm_grip, SERVO_FLOAT_DIGITS);
     debug_text(")");
 }
 
@@ -292,13 +343,13 @@ void debug_servo_point(struct servo_point *variable) {
 
 void debug_servo_velocity(struct servo_velocity *variable) {
     debug_text("(s ");
-    debug_float(&variable->arm_spin, 5);
+    debug_float(&variable->arm_spin, SERVO_FLOAT_DIGITS);
     debug_text(" g");
-    debug_float(&variable->arm_grip, 5);
+    debug_float(&variable->arm_grip, SERVO_FLOAT_DIGITS);
     debug_text(" l");
-    debug_float(&variable->arm_grip, 5);
+    debug_float(&variable->arm_grip, SERVO_FLOAT_DIGITS);
     debug_text(" r");
-    debug_float(&variable->arm_grip, 5);
+    debug_float(&variable->arm_grip, SERVO_FLOAT_DIGITS);
     debug_text(")");
 }
 

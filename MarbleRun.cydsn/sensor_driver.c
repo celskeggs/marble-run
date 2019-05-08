@@ -78,6 +78,8 @@ static void poll_sensor_state(void) {
 static void run_sensor_loop(void *unused) {
     (void) unused;
 
+    uart_send("sensor driver start\r\n");
+
     const TickType_t frequency = SENSOR_LOOP_UPDATE_PERIOD_MS / portTICK_PERIOD_MS;
     TickType_t last_wake_time = xTaskGetTickCount();
 
