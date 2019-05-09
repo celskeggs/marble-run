@@ -18,7 +18,7 @@ int main(void) {
 
     for (;;) {
         int value = Cy_GPIO_Read(Detect_1_PORT, Detect_1_NUM);
-        Cy_GPIO_Write(Indicator_PORT, Indicator_NUM, value);
+        // Cy_GPIO_Write(Indicator_PORT, Indicator_NUM, value);
         CyDelay(20);
     }
 }

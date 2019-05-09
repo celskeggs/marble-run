@@ -9,6 +9,7 @@
  *
  * ========================================
 */
+#include "project.h"
 #include "control_loop.h"
 #include "servo_control.h"
 #include "debug.h"
@@ -53,10 +54,10 @@ static struct servo_point driven_position = {
 // as defined in 3.3.1
 static struct servo_velocity maximum_speed = {
     // these are measured in degrees per second
-    .arm_spin = 10.0,
-    .arm_grip = 10.0,
-    .arm_left = 10.0,
-    .arm_right = 10.0,
+    .arm_spin = 30.0,
+    .arm_grip = 50.0,
+    .arm_left = 50.0,
+    .arm_right = 25.0,
     // TODO: calibrate
 };
 
@@ -120,6 +121,8 @@ static void update_control_loop(void) {
     }
 }
 
+static float actual_frequency = 0;
+
 static void run_control_loop(void *unused) {
     (void) unused;
 
@@ -127,10 +130,17 @@ static void run_control_loop(void *unused) {
 
     const TickType_t frequency = CONTROL_LOOP_UPDATE_PERIOD_MS / portTICK_PERIOD_MS;
     TickType_t last_wake_time = xTaskGetTickCount();
+    TickType_t first_wake_time = last_wake_time;
+
+    int n = 0;
 
     for (;;) {
+        Cy_GPIO_Write(Indicator_PORT, Indicator_NUM, 1);
         vTaskDelayUntil(&last_wake_time, frequency);
+        Cy_GPIO_Write(Indicator_PORT, Indicator_NUM, 0);
+        
         update_control_loop();
+        actual_frequency = (xTaskGetTickCount() - first_wake_time) * portTICK_PERIOD_MS / (++n);
     }
 }
 
@@ -150,6 +160,8 @@ void initialize_control_loop(void) {
 
     debug_text("control_loop(PM=");
     debug_mutex_state(&position_mutex);
+    debug_text(" RUNFQ=");
+    debug_float(&actual_frequency, 5);
     debug_text(" ERRMX=");
     debug_boolean(&err_mutex_mishandle);
     debug_text(" MAXV=");

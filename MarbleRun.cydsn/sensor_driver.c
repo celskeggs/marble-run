@@ -40,10 +40,6 @@ static unsigned int poll_first_sensor(void) {
         return 2;
     } else if (Cy_GPIO_Read(Detect_2_PORT, Detect_2_NUM)) {
         return 3;
-    } else if (Cy_GPIO_Read(Detect_3_PORT, Detect_3_NUM)) {
-        return 4;
-    } else if (Cy_GPIO_Read(Detect_4_PORT, Detect_4_NUM)) {
-        return 5;
     } else {
         return 0;
     }

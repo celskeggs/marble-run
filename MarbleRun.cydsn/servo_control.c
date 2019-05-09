@@ -25,7 +25,7 @@ static int angle_to_compare(float angle) {
         angle = 90;
     }
     double ms = 1.5 + (angle / 180.0);
-    return (int) (100 * ms + 0.5);
+    return (int) (400 * ms + 0.5);
 }
 
 // as defined in 1.2.2

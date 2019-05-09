@@ -112,7 +112,7 @@ static void reverse_list(struct debug_entry **list) {
     *list = forward;
 }
 
-#define DEBUG_LOOP_UPDATE_PERIOD_MS 1000
+#define DEBUG_LOOP_UPDATE_PERIOD_MS 500
 
 static void run_debug_loop(void *bufv) {
     char *buffer = (char *) bufv;
@@ -279,7 +279,7 @@ static int write_float(char *output, size_t len, float value) {
         if (len == 0) {
             return -1;
         }
-        *output = '-';
+        *output++ = '-';
         len--;
     }
     unsigned int ival = (unsigned int) value;
@@ -333,9 +333,9 @@ void debug_servo_point(struct servo_point *variable) {
     debug_text(" G");
     debug_float(&variable->arm_grip, SERVO_FLOAT_DIGITS);
     debug_text(" L");
-    debug_float(&variable->arm_grip, SERVO_FLOAT_DIGITS);
+    debug_float(&variable->arm_left, SERVO_FLOAT_DIGITS);
     debug_text(" R");
-    debug_float(&variable->arm_grip, SERVO_FLOAT_DIGITS);
+    debug_float(&variable->arm_right, SERVO_FLOAT_DIGITS);
     debug_text(")");
 }
 
@@ -347,9 +347,9 @@ void debug_servo_velocity(struct servo_velocity *variable) {
     debug_text(" g");
     debug_float(&variable->arm_grip, SERVO_FLOAT_DIGITS);
     debug_text(" l");
-    debug_float(&variable->arm_grip, SERVO_FLOAT_DIGITS);
+    debug_float(&variable->arm_left, SERVO_FLOAT_DIGITS);
     debug_text(" r");
-    debug_float(&variable->arm_grip, SERVO_FLOAT_DIGITS);
+    debug_float(&variable->arm_right, SERVO_FLOAT_DIGITS);
     debug_text(")");
 }
 
