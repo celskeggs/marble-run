@@ -112,7 +112,7 @@ static void reverse_list(struct debug_entry **list) {
     *list = forward;
 }
 
-#define DEBUG_LOOP_UPDATE_PERIOD_MS 500
+#define DEBUG_LOOP_UPDATE_PERIOD_MS 1000
 
 static void run_debug_loop(void *bufv) {
     char *buffer = (char *) bufv;

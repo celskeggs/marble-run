@@ -21,10 +21,10 @@
 //static struct graph_node; // TODO: initialize
 
 // as defined in 5.4.1
-static float drop_interval = 0.25; // TODO: configure
+static float drop_interval = 5.0; // TODO: configure
 
 // as defined in 5.4.2
-static float pickup_end = 2.0; // TODO: configure
+static float pickup_end = 10.0; // TODO: configure
 
 //for pickup to return both the column and the time
 typedef struct {
@@ -32,8 +32,8 @@ typedef struct {
     TickType_t col_at;
 } sensor_out;
 
-const TickType_t drop_delay;
-const TickType_t pickup_delay;
+static TickType_t drop_delay;
+static TickType_t pickup_delay;
 
 // as defined in 5.10
 static void path_plan(int start_pos, int end_pos, int pickup_index) {
@@ -114,15 +114,11 @@ static void drop_marble(void) {
     BaseType_t ret;
     ret = xSemaphoreTake(position_mutex, portMAX_DELAY);
     assert(ret == pdTRUE);
-    target_position.arm_grip = 45; //TODO: set actual values
+    target_position.arm_grip = -20; //TODO: set actual values
     ret = xSemaphoreGive(position_mutex);
     assert(ret == pdTRUE);
     vTaskDelay(drop_delay);
-    ret = xSemaphoreTake(position_mutex, portMAX_DELAY);
-    assert(ret == pdTRUE);
-    target_position.arm_grip = 0; //TODO: set actual values
-    ret = xSemaphoreGive(position_mutex);
-    assert(ret == pdTRUE);
+    // don't bother explicitly setting the gripper back, because that'll be implicitly done by the next move
     
 }
 
