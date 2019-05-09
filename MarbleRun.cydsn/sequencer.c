@@ -111,9 +111,19 @@ static void to_drop(void) {
 
 // as defined in 5.9
 static void drop_marble(void) {
+    BaseType_t ret;
+    ret = xSemaphoreTake(position_mutex, portMAX_DELAY);
+    assert(ret == pdTRUE);
     target_position.arm_grip = 45; //TODO: set actual values
+    ret = xSemaphoreGive(position_mutex);
+    assert(ret == pdTRUE);
     vTaskDelay(drop_delay);
+    ret = xSemaphoreTake(position_mutex, portMAX_DELAY);
+    assert(ret == pdTRUE);
     target_position.arm_grip = 0; //TODO: set actual values
+    ret = xSemaphoreGive(position_mutex);
+    assert(ret == pdTRUE);
+    
 }
 
 // as defined in 5.3
