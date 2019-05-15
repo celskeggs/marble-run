@@ -29,6 +29,9 @@ extern struct servo_point inferred_position;
 // as defined in 3.2.3
 extern bool at_target_position;
 
+// as defined in 3.2.5
+extern bool slow_mode;
+
 // as defined in 3.2.3.4
 extern SemaphoreHandle_t at_target_position_notify;
 

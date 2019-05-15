@@ -51,13 +51,26 @@ static struct servo_point driven_position = {
     0.0,
 };
 
+// as defined in 3.2.5
+bool slow_mode = false;
+
 // as defined in 3.3.1
-static struct servo_velocity maximum_speed = {
+static struct servo_velocity maximum_low_speed = {
     // these are measured in degrees per second
     .arm_spin = 30.0,
     .arm_grip = 50.0,
     .arm_left = 50.0,
     .arm_right = 25.0,
+    // TODO: calibrate
+};
+
+// as defined in 3.3.2
+static struct servo_velocity maximum_high_speed = {
+    // these are measured in degrees per second
+    .arm_spin = 90.0,
+    .arm_grip = 150.0,
+    .arm_left = 150.0,
+    .arm_right = 75.0,
     // TODO: calibrate
 };
 
@@ -103,6 +116,13 @@ static void update_control_loop(void) {
     // per 3.4.4
     if (!servo_point_equal(driven_position, target_position)) {
         struct servo_point max_update;
+        struct servo_velocity maximum_speed;
+
+        if (slow_mode) {
+            maximum_speed = maximum_low_speed;
+        } else {
+            maximum_speed = maximum_high_speed;
+        }
 
         max_update = servo_multiply_veloctiy(maximum_speed, CONTROL_LOOP_UPDATE_PERIOD_MS / 1000.0f);
 
@@ -164,8 +184,10 @@ void initialize_control_loop(void) {
     debug_float(&actual_frequency, 5);
     debug_text(" ERRMX=");
     debug_boolean(&err_mutex_mishandle);
-    debug_text(" MAXV=");
-    debug_servo_velocity(&maximum_speed);
+    debug_text(" MAXSV=");
+    debug_servo_velocity(&maximum_low_speed);
+    debug_text(" MAXHV=");
+    debug_servo_velocity(&maximum_high_speed);
     debug_text(" ");
     void *token = debug_with_mutex(position_mutex);
     debug_text(" DPOS=");
@@ -176,6 +198,8 @@ void initialize_control_loop(void) {
     debug_servo_point(&target_position);
     debug_text(" ATP=");
     debug_boolean(&at_target_position);
+    debug_text(" SM=");
+    debug_boolean(&slow_mode);
     debug_text(" ATPN=");
     debug_semaphore_state(&at_target_position_notify);
     debug_end_mutex(token);

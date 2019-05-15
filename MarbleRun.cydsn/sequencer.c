@@ -102,6 +102,13 @@ static sensor_out wait_for_marble(void) {
 static void pickup_marble(int col, TickType_t col_at) {
     path_plan(2, 3, col);
     vTaskDelayUntil(&col_at, pickup_delay);
+
+    BaseType_t ret;
+    ret = xSemaphoreTake(position_mutex, portMAX_DELAY);
+    assert(ret == pdTRUE);
+    slow_mode = true;
+    ret = xSemaphoreGive(position_mutex);
+    assert(ret == pdTRUE);
 }
 
 // as defined in 5.8
@@ -114,12 +121,12 @@ static void drop_marble(void) {
     BaseType_t ret;
     ret = xSemaphoreTake(position_mutex, portMAX_DELAY);
     assert(ret == pdTRUE);
+    slow_mode = false;
     target_position.arm_grip = -20; //TODO: set actual values
     ret = xSemaphoreGive(position_mutex);
     assert(ret == pdTRUE);
     vTaskDelay(drop_delay);
     // don't bother explicitly setting the gripper back, because that'll be implicitly done by the next move
-    
 }
 
 // as defined in 5.3
