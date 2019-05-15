@@ -24,9 +24,6 @@
 extern void initialize_debugger(void);
 extern void start_debugger(void);
 
-// only usable in other components during init
-extern void uart_send(const char *message);
-
 // text must be statically allocated
 extern void debug_text(const char *text);
 // do not nest these
@@ -47,8 +44,6 @@ extern void debug_semaphore_state(SemaphoreHandle_t *variable);
 #else
 #define initialize_debugger() do {} while(0)
 #define start_debugger() do {} while(0)
-    
-#define uart_send(message) do {} while(0)
 
 #define debug_text(text) do {} while(0)
 #define debug_with_mutex(mutex) NULL

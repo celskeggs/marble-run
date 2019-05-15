@@ -15,10 +15,12 @@
 #include "sensor_driver.h"
 #include "sequencer.h"
 #include "debug.h"
+#include "uart.h"
 #include <FreeRTOS.h>
 #include <task.h>
 
 int main(void) {
+    initialize_uart();
     initialize_debugger();
 
     initialize_servos();

@@ -11,6 +11,7 @@
 */
 #include "project.h"
 #include "debug.h"
+#include "uart.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -49,48 +50,15 @@ static void add_debug_fn(void (*fn)(char *, size_t, void *), void *param, size_t
     debug_buffer_size += size;
 }
 
-void uart_send(const char *string) {
-    cy_en_scb_uart_status_t err;
-    size_t len = strlen(string);
-
-    err = UART_1_Transmit((void *) string, len);
-    if (err != CY_SCB_UART_TRANSMIT_BUSY) {
-        return;
-    }
-    
-    int irqs_disabled = __get_PRIMASK();
-    if (irqs_disabled) {
-        // TODO: something more reliable?
-        __enable_irq();
-    }
-    while (err == CY_SCB_UART_TRANSMIT_BUSY) {
-        err = UART_1_Transmit((void *) string, len);
-    }
-    if (irqs_disabled) {
-        __disable_irq();
-    }
-}
-
 void Cy_SysLib_ProcessingFault(void) {
     // TODO: use cy_faultFrame
     uart_send("fault detected\r\n");
     for (;;) { }
 }
 
-static void initialize_uart(void) {
-    UART_1_Init(&UART_1_config);
-
-    /* Hook interrupt service routine and enable interrupt */
-    Cy_SysInt_Init(&UART_1_SCB_IRQ_cfg, &UART_1_Interrupt);
-    NVIC_EnableIRQ(UART_1_SCB_IRQ_cfg.intrSrc);
-
-    UART_1_Enable();
-}
-
 void initialize_debugger(void) {
     assert(!started);
 
-    initialize_uart();
     uart_send("\r\n\r\ndebug init\r\n");
 
     debug_text("DEBUG at ");
