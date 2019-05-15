@@ -46,7 +46,7 @@ void initialize_servos(void) {
     PWM_grip_Start();
 
     debug_text("servo_control(");
-    debug_servo_point(&last_written);
+    debug_servo_point("lwrite", &last_written);
     debug_text(") ");
 }
 

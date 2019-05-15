@@ -30,14 +30,14 @@ extern void debug_text(const char *text);
 extern void *debug_with_mutex(SemaphoreHandle_t mutex);
 extern void debug_end_mutex(void *token);
 
-extern void debug_boolean(bool *variable);
-extern void debug_integer(unsigned int *variable, int digits);
-extern void debug_ticktype(TickType_t *variable);
-extern void debug_float(float *variable, int digits);
-extern void debug_servo_point(struct servo_point *variable);
-extern void debug_servo_velocity(struct servo_velocity *variable);
+extern void debug_boolean(const char *prodname, bool *variable);
+extern void debug_integer(const char *prodname, unsigned int *variable, int digits);
+extern void debug_ticktype(const char *prodname, TickType_t *variable);
+extern void debug_float(const char *prodname, float *variable, int digits);
+extern void debug_servo_point(const char *prodname, struct servo_point *variable);
+extern void debug_servo_velocity(const char *prodname, struct servo_velocity *variable);
 extern void debug_mutex_state(SemaphoreHandle_t *variable);
-extern void debug_semaphore_state(SemaphoreHandle_t *variable);
+extern void debug_semaphore_state(const char *prodname, SemaphoreHandle_t *variable);
 
 #define debug_start(name) debug_text(name "=")
 #define debug_end() debug_text(" ")
@@ -49,14 +49,14 @@ extern void debug_semaphore_state(SemaphoreHandle_t *variable);
 #define debug_with_mutex(mutex) NULL
 #define debug_end_mutex(token) do { (void) token; } while(0)
 
-#define debug_boolean(variable) do {} while(0)
-#define debug_integer(variable, digits) do {} while(0)
-#define debug_ticktype(variable) do {} while(0)
-#define debug_float(variable, digits) do {} while(0)
-#define debug_servo_point(variable) do {} while(0)
-#define debug_servo_velocity(variable) do {} while(0)
+#define debug_boolean(prodname, variable) do {} while(0)
+#define debug_integer(prodname, variable, digits) do {} while(0)
+#define debug_ticktype(prodname, variable) do {} while(0)
+#define debug_float(prodname, variable, digits) do {} while(0)
+#define debug_servo_point(prodname, variable) do {} while(0)
+#define debug_servo_velocity(prodname, variable) do {} while(0)
 #define debug_mutex_state(variable) do {} while(0)
-#define debug_semaphore_state(variable) do {} while(0)
+#define debug_semaphore_state(prodname, variable) do {} while(0)
 #endif
 
 #endif

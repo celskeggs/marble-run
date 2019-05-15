@@ -39,7 +39,7 @@ static void chop_params(void) {
     }
 }
 
-extern const char *console_get_string(unsigned int arg) {
+const char *console_get_string(unsigned int arg) {
     arg += 1; // don't include command
     assert(arg < argnum);
     char *s = argptr[arg];
@@ -47,18 +47,33 @@ extern const char *console_get_string(unsigned int arg) {
     return s;
 }
 
-extern int console_get_int(unsigned int arg) {
+int console_get_int(unsigned int arg) {
     return atoi(console_get_string(arg));
 }
 
-extern void console_register(struct console_def *def) {
+float console_get_float(unsigned int arg) {
+    return atof(console_get_string(arg));
+}
+
+int console_get_bool_maybe(unsigned int arg) {
+    const char *value = console_get_string(arg);
+    if (strcmp(value, "true") == 0 || strcmp(value, "on") == 0) {
+        return 1;
+    } else if (strcmp(value, "false") == 0 || strcmp(value, "off") == 0) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
+void console_register(struct console_def *def) {
     assert(def->argcount <= ARGMAX - 1);
     assert(*def->name);
     def->next = decl_head;
     decl_head = def;
 }
 
-extern void console_perform(const char *input, size_t length) {
+void console_perform(const char *input, size_t length) {
     if (length > UART_BUFLEN - 1) {
         length = UART_BUFLEN - 1;
     }
@@ -88,7 +103,7 @@ extern void console_perform(const char *input, size_t length) {
                 uart_send("\r\n");
                 return;
             }
-            decl->cb();
+            decl->cb(decl->param);
             return;
         }
         decl = decl->next;
@@ -100,7 +115,8 @@ extern void console_perform(const char *input, size_t length) {
 
 // default commands
 
-static void cmd_help(void) {
+static void cmd_help(void *p) {
+    (void) p;
     uart_send("commands:\r\n");
     struct console_def *decl = decl_head;
     while (decl) {
@@ -113,7 +129,8 @@ static void cmd_help(void) {
 }
 static struct console_def def_help = { .name = "help", .argcount = 0, .cb = cmd_help };
 
-static void cmd_echo(void) {
+static void cmd_echo(void *p) {
+    (void) p;
     uart_send("[echo] ");
     uart_send(console_get_string(0));
     uart_send("\r\n");

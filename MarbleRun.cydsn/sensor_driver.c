@@ -30,6 +30,7 @@ SemaphoreHandle_t marble_column_notify = NULL;
 
 // debugging
 static bool err_mutex_mishandle = false;
+static bool sensor_loop_disable = false;
 
 #define SENSOR_LOOP_UPDATE_PERIOD_MS 5
 
@@ -81,7 +82,9 @@ static void run_sensor_loop(void *unused) {
 
     for (;;) {
         vTaskDelayUntil(&last_wake_time, frequency);
-        poll_sensor_state();
+        if (!sensor_loop_disable) {
+            poll_sensor_state();
+        }
     }
 }
 
@@ -102,15 +105,17 @@ void initialize_sensor_driver(void) {
     debug_text("sensor_driver(MCM=");
     debug_mutex_state(&marble_column_mutex);
     debug_text(" ERRMX=");
-    debug_boolean(&err_mutex_mishandle);
+    debug_boolean("sensor_errmx", &err_mutex_mishandle);
     debug_text(" ");
     void *token = debug_with_mutex(marble_column_mutex);
     debug_text(" MC=");
-    debug_integer(&marble_column, 1);
+    debug_integer("mc", &marble_column, 1);
+    debug_text(" SLD=");
+    debug_boolean("sld", &sensor_loop_disable);
     debug_text(" MDA=");
-    debug_ticktype(&marble_detected_at);
+    debug_ticktype("mda", &marble_detected_at);
     debug_text(" MCN=");
-    debug_semaphore_state(&marble_column_notify);
+    debug_semaphore_state("mcn", &marble_column_notify);
     debug_end_mutex(token);
     debug_text(") ");
 
