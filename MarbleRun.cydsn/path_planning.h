@@ -26,5 +26,8 @@ struct graph_node {
 extern struct servo_point *graph[];
 extern struct servo_point *pick_ups;
 
+// only used for debugging; not in spec
+extern void initialize_graph(void);
+
 #endif
 /* [] END OF FILE */

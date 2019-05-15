@@ -119,13 +119,25 @@ static void cmd_help(void *p) {
     (void) p;
     uart_send("commands:\r\n");
     struct console_def *decl = decl_head;
+    char padding[31];
+    memset(padding, ' ', 31);
     while (decl) {
         uart_send("  ");
         uart_send(decl->name);
-        uart_send("\r\n");
+        int padn = 30 - strlen(decl->name);
+        if (padn < 0) {
+            padn = 0;
+        }
         decl = decl->next;
+        if (decl) {
+            padding[padn] = '\0';
+            uart_send(padding);
+            padding[padn] = ' ';
+            uart_send(decl->name);
+            decl = decl->next;
+        }
+        uart_send("\r\n");
     }
-    uart_send("good luck\r\n");
 }
 static struct console_def def_help = { .name = "help", .argcount = 0, .cb = cmd_help };
 

@@ -16,13 +16,16 @@
 
 static struct servo_point last_written = {0, 0, 0, 0};
 
+static unsigned int angle_limit_negative = 120;
+static unsigned int angle_limit_positive = 180;
+
 // as defined in 1.2.1
 static int angle_to_compare(float angle) {
-    if (angle < -90) {
-        angle = -90;
+    if (angle < -(float)angle_limit_negative) {
+        angle = -(float)angle_limit_negative;
     }
-    if (angle > 90) {
-        angle = 90;
+    if (angle > (float)angle_limit_positive) {
+        angle = (float)angle_limit_positive;
     }
     double ms = 1.5 + (angle / 180.0);
     return (int) (400 * ms + 0.5);
@@ -46,6 +49,11 @@ void initialize_servos(void) {
     PWM_grip_Start();
 
     debug_text("servo_control(");
+    debug_text("neglim=");
+    debug_integer("neglim", &angle_limit_negative, 3);
+    debug_text(" poslim=");
+    debug_integer("poslim", &angle_limit_positive, 3);
+    debug_text(" lwrite=");
     debug_servo_point("lwrite", &last_written);
     debug_text(") ");
 }

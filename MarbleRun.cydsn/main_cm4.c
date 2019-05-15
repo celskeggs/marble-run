@@ -14,6 +14,7 @@
 #include "control_loop.h"
 #include "sensor_driver.h"
 #include "sequencer.h"
+#include "path_planning.h"
 #include "debug.h"
 #include "uart.h"
 #include "console.h"
@@ -28,6 +29,7 @@ int main(void) {
     initialize_servos();
     initialize_control_loop();
     initialize_sensor_driver();
+    initialize_graph();
     initialize_sequencer();
     start_debugger();
 
