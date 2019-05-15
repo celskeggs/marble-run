@@ -16,11 +16,13 @@
 #include "sequencer.h"
 #include "debug.h"
 #include "uart.h"
+#include "console.h"
 #include <FreeRTOS.h>
 #include <task.h>
 
 int main(void) {
     initialize_uart();
+    initialize_console();
     initialize_debugger();
 
     initialize_servos();

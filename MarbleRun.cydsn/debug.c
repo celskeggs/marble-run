@@ -12,6 +12,7 @@
 #include "project.h"
 #include "debug.h"
 #include "uart.h"
+#include "console.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -65,6 +66,10 @@ void initialize_debugger(void) {
     debug_ticktype(&debug_timestamp);
     debug_text(": ");
 
+    debug_text("uart(OVR=");
+    debug_boolean(&uart_input_overrun);
+    debug_text(") ");
+
     assert(!err_insufficient_memory);
 }
 
@@ -80,11 +85,45 @@ static void reverse_list(struct debug_entry **list) {
     *list = forward;
 }
 
-#define DEBUG_LOOP_UPDATE_PERIOD_MS 1000
+static char *debug_buffer = NULL;
 
-static void run_debug_loop(void *bufv) {
-    char *buffer = (char *) bufv;
+static void print_debug_info(void) {
     size_t total_size = debug_buffer_size;
+    char *buffer = debug_buffer;
+
+    size_t remaining = total_size;
+    memset(buffer, '*', total_size);
+
+    debug_timestamp = xTaskGetTickCount();
+
+    struct debug_entry *entry = debug_list;
+    char *cursor = buffer;
+    while (entry) {
+        assert(remaining >= entry->size);
+        entry->fn(cursor, entry->size, entry->param);
+        remaining -= entry->size;
+        cursor += entry->size;
+        entry = entry->next;
+    }
+
+    uart_send(buffer);
+}
+
+static unsigned int debug_frequency = 0;
+static unsigned int debug_counter = 0;
+
+static void set_debug_frequency(void) {
+    int nfreq = console_get_int(0);
+    if (nfreq < 0) {
+        nfreq = 0;
+    }
+    debug_frequency = nfreq;
+}
+
+#define DEBUG_LOOP_UPDATE_PERIOD_MS 100
+
+static void run_debug_loop(void *unused) {
+    (void) unused;
 
     uart_send("debug loop start\r\n");
 
@@ -93,27 +132,33 @@ static void run_debug_loop(void *bufv) {
 
     for (;;) {
         vTaskDelayUntil(&last_wake_time, frequency);
-        
-        size_t remaining = total_size;
-        memset(buffer, '*', total_size);
 
-        debug_timestamp = xTaskGetTickCount();
-
-        struct debug_entry *entry = debug_list;
-        char *cursor = buffer;
-        while (entry) {
-            assert(remaining >= entry->size);
-            entry->fn(cursor, entry->size, entry->param);
-            remaining -= entry->size;
-            cursor += entry->size;
-            entry = entry->next;
+        if (debug_frequency > 0) {
+            if (++debug_counter >= debug_frequency) {
+                debug_counter = 0;
+                print_debug_info();
+            }
         }
 
-        uart_send(buffer);
+        size_t inputlen = uart_get_line();
+        if (inputlen) {
+            const char *input = uart_get_buffer();
+            uart_send("[console] ");
+            uart_send(input);
+            uart_send("\r\n");
+            console_perform(input, inputlen);
+            uart_chew_line();
+        }
     }
 }
 
+static struct console_def def_status = { .name = "status", .argcount = 0, .cb = print_debug_info };
+static struct console_def def_debug = { .name = "debug", .argcount = 1, .cb = set_debug_frequency };
+
 void start_debugger(void) {
+    console_register(&def_status);
+    console_register(&def_debug);
+
     debug_text("\r\n");
 
     assert(!started);
@@ -121,14 +166,14 @@ void start_debugger(void) {
 
     reverse_list(&debug_list);
 
-    char *debug_buffer = pvPortMalloc(debug_buffer_size + 1);
+    debug_buffer = pvPortMalloc(debug_buffer_size + 1);
     if (debug_buffer == NULL || err_insufficient_memory) {
         uart_send("debug OOM\r\n");
         return;
     }
 
     BaseType_t err;
-    err = xTaskCreate(run_debug_loop, "debug_loop", 500, debug_buffer, 7, NULL);
+    err = xTaskCreate(run_debug_loop, "debug_loop", 500, debug_buffer, 1, NULL);
     if (err != pdPASS) {
         uart_send("debug NTASK\r\n");
     }
