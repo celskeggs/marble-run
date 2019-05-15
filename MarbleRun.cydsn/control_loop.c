@@ -59,7 +59,7 @@ static struct servo_velocity maximum_low_speed = {
     // these are measured in degrees per second
     .arm_spin = 30.0,
     .arm_grip = 50.0,
-    .arm_left = 50.0,
+    .arm_left = 10.0,
     .arm_right = 25.0,
     // TODO: calibrate
 };

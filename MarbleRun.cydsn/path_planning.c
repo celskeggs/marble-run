@@ -17,10 +17,10 @@
 // TODO: initialize
 struct graph_node drop_off, drop_off_waypoint, pick_up_waypoint;
 struct servo_point * pick_ups;
-struct servo_point graph1[] = {{90, -70, 50, 50}};
-struct servo_point graph2[] = {{90, -70, 20, 20}};
-struct servo_point graph3[] = {{-90, -70, 20, 20}};
-struct servo_point graph4[] = {{-90, -70, 50, 50}, {-90, -70, 50, 50}, {-90, -70, 50, 50}};
+struct servo_point graph1[] = {{0, -70, 175, 30}}; // drop
+struct servo_point graph2[] = {{0, -70, 130, -40}}; // drop waypoint
+struct servo_point graph3[] = {{0, -70, -50, 165}}; // pickup waypoint
+struct servo_point graph4[] = {{-10, -70, 0, 175}, {10, -70, 0, 175}, {30, -70, 0, 175}}; // pickup positions; only center is unestimated
 struct servo_point *graph[] = {graph1, graph2, graph3, graph4};
 // (W1=(S 0.0000 G-70.00 L175.00 R30.000) W2=(S 0.0000 G-70.00 L130.00 R-40.00) W3=(S 0.0000 G-70.00 L-50.00 R165.00) W40=(S 10.000 G-70.00 L0.0000 R175.00) W41=(S 10.000 G-70.00 L0.0000 R175.00) W42=(S 10.000 G-70.00 L0.0000 R175.00)
 void initialize_graph(void) {
