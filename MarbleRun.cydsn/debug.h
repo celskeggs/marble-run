@@ -47,12 +47,12 @@ extern void debug_semaphore_state(SemaphoreHandle_t *variable);
 
 #define debug_text(text) do {} while(0)
 #define debug_with_mutex(mutex) NULL
-#define debug_end_mutex(token) do {} while(0)
+#define debug_end_mutex(token) do { (void) token; } while(0)
 
 #define debug_boolean(variable) do {} while(0)
 #define debug_integer(variable, digits) do {} while(0)
 #define debug_ticktype(variable) do {} while(0)
-#define debug_float(variable) do {} while(0)
+#define debug_float(variable, digits) do {} while(0)
 #define debug_servo_point(variable) do {} while(0)
 #define debug_servo_velocity(variable) do {} while(0)
 #define debug_mutex_state(variable) do {} while(0)

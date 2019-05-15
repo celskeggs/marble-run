@@ -12,6 +12,7 @@
 
 #include "uart.h"
 #include "project.h"
+#include <string.h>
 
 void initialize_uart(void) {
     UART_1_Init(&UART_1_config);
