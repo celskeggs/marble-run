@@ -12,6 +12,7 @@
 #include "project.h"
 #include "control_loop.h"
 #include "servo_control.h"
+#include "console.h"
 #include "debug.h"
 #include <assert.h>
 #include <math.h>
@@ -57,21 +58,20 @@ bool slow_mode = false;
 // as defined in 3.3.1
 static struct servo_velocity maximum_low_speed = {
     // these are measured in degrees per second
-    .arm_spin = 30.0,
-    .arm_grip = 50.0,
-    .arm_left = 10.0,
-    .arm_right = 25.0,
+    .arm_spin = 40.0,
+    .arm_grip = 150.0,
+    .arm_left = 70.0,
+    .arm_right = 130.0,
     // TODO: calibrate
 };
 
 // as defined in 3.3.2
 static struct servo_velocity maximum_high_speed = {
     // these are measured in degrees per second
-    .arm_spin = 90.0,
-    .arm_grip = 150.0,
-    .arm_left = 150.0,
-    .arm_right = 75.0,
-    // TODO: calibrate
+    .arm_spin = 360.0,
+    .arm_grip = 300.0,
+    .arm_left = 300.0,
+    .arm_right = 300.0,
 };
 
 // debugging
@@ -164,6 +164,14 @@ static void run_control_loop(void *unused) {
     }
 }
 
+static void cmd_move(void *p) {
+    (void) p;
+    target_position.arm_left = console_get_float(0);
+    target_position.arm_right = console_get_float(1);
+}
+
+static struct console_def def_move = { .name = "mv", .cb = cmd_move, .argcount = 2 };
+
 // as defined in 3.5
 void initialize_control_loop(void) {
     position_mutex = xSemaphoreCreateMutex();
@@ -204,6 +212,8 @@ void initialize_control_loop(void) {
     debug_semaphore_state("atpn", &at_target_position_notify);
     debug_end_mutex(token);
     debug_text(") ");
+
+    console_register(&def_move);
 
     set_servos(driven_position);
 
