@@ -2,6 +2,8 @@
 
 This is the Final Project for 16.35, Real-Time Systems and Software, from Mia LaRocca and Cel Skeggs.
 
+Video demonstration: [see here](https://www.youtube.com/watch?v=5cBtGPsAm4A).
+
 ## Hardware components
 
  - A Cypress PSoC 6 (CY8C6347BZI-BLD53) device
